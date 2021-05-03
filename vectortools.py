@@ -33,9 +33,40 @@ class Tensor:
     def __truediv__(self, num):
         return Tensor(self.xx/num, self.xy/num, self.yx/num, self.yy/num)
     
+    def __pow__(self, num):
+        result = Tensor(1, 0, 0, 1)
+        if num < 0:
+            pow_tensor = self.inverse()
+        else:
+            pow_tensor = self
+        for i in range(abs(num)):
+            result = result.dot(pow_tensor)
+        return result
+    
+    def __eq__(self, other):
+        if str(self) == str(other):
+            return True
+        else:
+            return False
+        
+    def __ne__(self, other):
+        if str(self) != str(other):
+            return True
+        else:
+            return False
+        
     def __str__(self):
         return 'Tensor(' + str(self.xx) + ', ' + str(self.xy) + ', ' + str(self.yx) + ', ' + str(self.yy) + ')'
     
+    def inverse(self):
+        if abs(self) == 0:
+            return None
+        else:
+            return Tensor(self.yy, -self.xy, -self.yx, self.xx)/abs(self)
+        
+    def T(self):
+        return Tensor(self.xx, self.yx, self.xy, self.yy)
+        
     def dot(self, other_object):
         if isinstance(other_object, Tensor):
             return Tensor(self.xx*other_object.xx + self.xy*other_object.yx, self.xx*other_object.xy + self.xy*other_object.yy, 
@@ -67,6 +98,18 @@ class Vector:
     def __truediv__(self, num):
         return Vector(self.x/num, self.y/num)
     
+    def __eq__(self, other):
+        if str(self) == str(other):
+            return True
+        else:
+            return False
+        
+    def __ne__(self, other):
+        if str(self) != str(other):
+            return True
+        else:
+            return False
+    
     def __str__(self):
         return 'Vector(' + str(self.x) + ', ' + str(self.y) + ')'
     
@@ -77,4 +120,43 @@ class Vector:
         return self.x*other_Vector.y - self.y*other_Vector.x
     
 def SO2(theta):
-    return Tensor(m.cos(theta), m.sin(theta), -m.sin(theta), m.cos(theta))
+    return Tensor(m.cos(theta), -m.sin(theta), m.sin(theta), m.cos(theta))
+
+if __name__ == '__main__':
+    t1 = Tensor(1, 2,
+                3, 4)
+    t2 = SO2(m.pi/4)
+    t3 = Tensor(1, 2,
+                3, 4)
+    print(abs(t1))
+    print(t1 + t2)
+    print(t1 - t2)
+    print(t1*2)
+    print(2*t1)
+    print(t1/2)
+    print(t1**3)
+    print(t1**(-1))
+    print(t1 == t3)
+    print(t1 != t3)
+    print(t1)
+    print(t1.inverse())
+    print(t1.T())
+    print(t1.dot(t2))
+    
+    v1 = Vector(3, 4)
+    v2 = Vector(4, 3)
+    print(t1.dot(v1))
+    print(abs(v1))
+    print(v1 + v2)
+    print(v1 - v2)
+    print(2*v1)
+    print(v1*2)
+    print(v1/2)
+    print(v1 == v2)
+    print(v1 != v2)
+    print(v1)
+    print(v1.dot(v2))
+    print(v1.cross(v2))
+    
+    
+    
