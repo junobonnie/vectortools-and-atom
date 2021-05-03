@@ -4,7 +4,7 @@
 
 
 
-pocket ball demo:
+pocket ball demo(모바일 재생 불가):
 ![00000001](https://user-images.githubusercontent.com/60418809/116839588-e1561700-ac0d-11eb-8db4-642febf39e1b.png)
 ![00007300](https://user-images.githubusercontent.com/60418809/116839600-ef0b9c80-ac0d-11eb-9eca-ddeb50d94b53.png)
 
