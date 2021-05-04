@@ -5,6 +5,7 @@ Created on Fri Apr 30 01:00:19 2021
 @author: junob
 """
 import math as m
+import numpy as np
 
 class Tensor:
     def __init__(self, xx, xy, yx, yy):
@@ -75,6 +76,18 @@ class Tensor:
         elif isinstance(other_object, Vector):
             return Vector(self.xx*other_object.x + self.xy*other_object.y, self.yx*other_object.x + self.yy*other_object.y)
         
+    def tuple(self):
+        return ((self.xx, self.xy),
+                (self.yx, self.yy))
+    
+    def list(self):
+        return [[self.xx, self.xy],
+                [self.yx, self.yy]]
+    
+    def array(self):
+        return np.array([[self.xx, self.xy],
+                         [self.yx, self.yy]])
+
 class Vector:
     def __init__(self, x, y):
         self.x = x
@@ -119,6 +132,15 @@ class Vector:
     def cross(self, other_Vector):
         return self.x*other_Vector.y - self.y*other_Vector.x
     
+    def tuple(self):
+        return (self.x, self.y)
+    
+    def list(self):
+        return [self.x, self.y]
+    
+    def array(self):
+        return np.array([self.x, self.y])
+    
 def SO2(theta):
     return Tensor(m.cos(theta), -m.sin(theta), m.sin(theta), m.cos(theta))
 
@@ -142,6 +164,9 @@ if __name__ == '__main__':
     print(t1.inverse())
     print(t1.T())
     print(t1.dot(t2))
+    print(t1.tuple())
+    print(t1.list())
+    print(t1.array())
     
     v1 = Vector(3, 4)
     v2 = Vector(4, 3)
@@ -157,6 +182,6 @@ if __name__ == '__main__':
     print(v1)
     print(v1.dot(v2))
     print(v1.cross(v2))
-    
-    
-    
+    print(v1.tuple())
+    print(v1.list())
+    print(v1.array())
