@@ -228,29 +228,31 @@ class Simulator:
             atom.vel = v_[count]
             count = count + 1
 
-    def save_screen(self, directory):
+    def save_screen(self, directory, skip_number = 0):
         self.count_screen += 1
-        img = directory + '/%08d.png' % (self.count_screen)
-        pg.image.save(self.render.screen, img)
+        if self.count_screen%(skip_number+1) == 0:
+            img = directory + '/%08d.png' % (self.count_screen)
+            pg.image.save(self.render.screen, img)
         
-    def save_snapshot(self, directory):
+    def save_snapshot(self, directory, skip_number = 0):
         self.count_snapshot += 1
-        snapshot = directory + '/snapshot_%08d.txt' % (self.count_snapshot)
-        with open(snapshot, "w") as f:
-            walls_info = ''
-            count = 0
-            for wall in self.world.walls:
-                count =+ 1
-                walls_info = walls_info + 'wall' + str(count) + '{ width:' + str(wall.width) + ', height:' + str(wall.height) + ', theta:' + str(wall.theta) + ', pos:' + str(wall.pos) + ', color:' + str(wall.color) + ' }, '
+        if self.count_snapshot%(skip_number+1) == 0:
+            snapshot = directory + '/snapshot_%08d.txt' % (self.count_snapshot)
+            with open(snapshot, "w") as f:
+                walls_info = ''
+                count = 0
+                for wall in self.world.walls:
+                    count =+ 1
+                    walls_info = walls_info + 'wall' + str(count) + '{ width:' + str(wall.width) + ', height:' + str(wall.height) + ', theta:' + str(wall.theta) + ', pos:' + str(wall.pos) + ', color:' + str(wall.color) + ' }, '
+                    
+                atoms_info = ''
+                count = 0
+                for atom in self.world.atoms:
+                    count =+ 1
+                    atoms_info = atoms_info + 'atom' + str(count) + '{ element{ name:' + atom.element.name + ', mass:' + str(atom.element.mass) + ', radius:' + str(atom.element.radius) + ', color:' + str(atom.element.color) + ' }' + ', pos:' + str(atom.pos) + ', vel:' + str(atom.vel) + ' }, '
+                    
+                f.write('world{ t:' + str(world.t) + ', gravity:' + str(world.gravity) + ', walls{ ' + walls_info + ' }' + ', atoms{ ' + atoms_info + ' }' + ' }')
                 
-            atoms_info = ''
-            count = 0
-            for atom in self.world.atoms:
-                count =+ 1
-                atoms_info = atoms_info + 'atom' + str(count) + '{ element{ name:' + atom.element.name + ', mass:' + str(atom.element.mass) + ', radius:' + str(atom.element.radius) + ', color:' + str(atom.element.color) + ' }' + ', pos:' + str(atom.pos) + ', vel:' + str(atom.vel) + ' }, '
-                
-            f.write('world{ t:' + str(world.t) + ', gravity:' + str(world.gravity) + ', walls{ ' + walls_info + ' }' + ', atoms{ ' + atoms_info + ' }' + ' }')
-            
 if __name__ == '__main__':
     width = 1000
     height = 800
@@ -312,4 +314,4 @@ if __name__ == '__main__':
         pg.display.update()
         
         #simulator.save_screen('images/pocket_ball_demo')
-        #simulator.save_snapshot('snapshots/pocket_ball_demo')
+        simulator.save_snapshot('snapshots/pocket_ball_demo', 99)
