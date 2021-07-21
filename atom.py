@@ -314,4 +314,4 @@ if __name__ == '__main__':
         pg.display.update()
         
         #simulator.save_screen('images/pocket_ball_demo')
-        simulator.save_snapshot('snapshots/pocket_ball_demo', 99)
+        #simulator.save_snapshot('snapshots/pocket_ball_demo', 99)
