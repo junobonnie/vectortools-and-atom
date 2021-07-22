@@ -7,6 +7,7 @@ Created on Fri Apr 30 14:16:50 2021
 import math as m
 from vectortools import *
 import pygame as pg
+import sys
 
 def cross_3(A_Vector, B_Vector, C_Vector):
     AB = A_Vector - B_Vector
@@ -76,8 +77,8 @@ class Atom:
 
     def is_collision(self, other):
         if isinstance(other, Atom):
-            d = self.pos - other.pos
-            if not(d.dot(d) == 0):
+            if not self == other:
+                d = self.pos - other.pos
                 v1 = self.vel
                 v2 = other.vel
 
@@ -100,8 +101,8 @@ class Atom:
 
     def collision(self, other):
         if isinstance(other, Atom):
-            d = self.pos - other.pos
-            if not(d.dot(d) == 0):
+            if not self == other:
+                d = self.pos - other.pos
                 m1 = self.element.mass
                 v1 = self.vel
                 m2 = other.element.mass
@@ -125,6 +126,19 @@ class Atom:
                     if (OT.dot(V) < 0):
                         self.vel = V - 2*OT.dot(V)*OT/OT.dot(OT)
 
+    def fusion(self, other_Atom):
+        new_Atom = None
+        if not self == other_Atom:
+            d = self.pos - other_Atom.pos
+            if (d.dot(d) < (self.element.radius + other_Atom.element.radius)**2):
+                new_element = Element(name = 'New atom', mass = self.element.mass + other_Atom.element.mass, 
+                                      radius = m.sqrt(self.element.radius**2 + other_Atom.element.radius**2),
+                                      color = self.element.color + other_Atom.element.color)
+                new_Atom = Atom(element = new_element, 
+                                pos = (self.element.mass*self.pos + other_Atom.element.mass*other_Atom.pos)/(self.element.mass + other_Atom.element.mass),
+                                vel = (self.element.mass*self.vel + other_Atom.element.mass*other_Atom.vel)/(self.element.mass + other_Atom.element.mass))
+        return new_Atom
+    
 class World:
     def __init__(self, t, atoms, walls, gravity):
         self.t = t
@@ -213,7 +227,22 @@ class Simulator:
         for atom in self.world.atoms:
             for wall in self.world.walls:
                 atom.collision(wall)
-
+    
+    def atom_atom_fusion(self):
+        while True:
+            for atom in self.world.atoms[:]:
+                for other_atom in self.world.atoms[:]:
+                    new_atom = atom.fusion(other_atom)
+                    if not new_atom == None:
+                        self.world.atoms.remove(atom)
+                        self.world.atoms.remove(other_atom)
+                        self.world.atoms.append(new_atom)
+                        break
+                if not new_atom == None:
+                    break
+            if new_atom == None:
+                break
+                
     def main(self):
         x_ = []
         v_ = []
@@ -229,29 +258,56 @@ class Simulator:
             count = count + 1
 
     def save_screen(self, directory, skip_number = 0):
-        self.count_screen += 1
         if self.count_screen%(skip_number+1) == 0:
             img = directory + '/%08d.png' % (self.count_screen)
             pg.image.save(self.render.screen, img)
+        self.count_screen += 1
         
     def save_snapshot(self, directory, skip_number = 0):
-        self.count_snapshot += 1
         if self.count_snapshot%(skip_number+1) == 0:
             snapshot = directory + '/snapshot_%08d.txt' % (self.count_snapshot)
             with open(snapshot, "w") as f:
                 walls_info = ''
                 count = 0
                 for wall in self.world.walls:
-                    count =+ 1
+                    count += 1
                     walls_info = walls_info + 'wall' + str(count) + '{ width:' + str(wall.width) + ', height:' + str(wall.height) + ', theta:' + str(wall.theta) + ', pos:' + str(wall.pos) + ', color:' + str(wall.color) + ' }, '
                     
                 atoms_info = ''
                 count = 0
                 for atom in self.world.atoms:
-                    count =+ 1
+                    count += 1
                     atoms_info = atoms_info + 'atom' + str(count) + '{ element{ name:' + atom.element.name + ', mass:' + str(atom.element.mass) + ', radius:' + str(atom.element.radius) + ', color:' + str(atom.element.color) + ' }' + ', pos:' + str(atom.pos) + ', vel:' + str(atom.vel) + ' }, '
                     
                 f.write('world{ t:' + str(world.t) + ', gravity:' + str(world.gravity) + ', walls{ ' + walls_info + ' }' + ', atoms{ ' + atoms_info + ' }' + ' }')
+        self.count_snapshot += 1
+        
+    def load_snapshot(self, snapshot_file):
+        with open(snapshot_file, "r") as f:
+            snapshot = f.read()
+            snapshot = snapshot.replace('world{ t:', '').replace(', gravity:', '#').replace(', walls', '#').replace(',  }, atoms', '#').replace(' },  } }', '') 
+            snapshot = snapshot.split('#')
+            t = float(snapshot[0])
+            gravity = eval(snapshot[1])
+            walls_raw = snapshot[2]
+            walls_raw = walls_raw.replace('{ wall', '').split('wall')
+            walls = []
+            for wall in walls_raw:
+                wall = wall.replace('width:', '#').replace(', height:', '#').replace(', theta:', '#').replace(', pos:', '#').replace(', color:', '#').replace(' }, ', '').replace(' }', '')
+                wall = wall.split('#')
+                walls.append(Wall(float(wall[1]), float(wall[2]), float(wall[3]), eval(wall[4]), eval(wall[5])))
+                
+            atoms_raw = snapshot[3]
+            atoms_raw = atoms_raw.replace('{ atom', '').split('atom')
+            atoms = []
+            for atom in atoms_raw:
+                atom = atom.replace('element{ ', '#').replace(' }, pos:', '#').replace(', vel:', '#').replace(' }, ', '')
+                atom = atom.split('#')
+                element_raw = atom[1]
+                element_raw = element_raw.replace('name:', '#').replace(', mass:', '#').replace(', radius:', '#').replace(', color:', '#')
+                element_raw = element_raw.split('#')
+                atoms.append(Atom(Element(element_raw[1], float(element_raw[2]), float(element_raw[3]), eval(element_raw[4])), eval(atom[2]), eval(atom[3])))
+        self.world = World(t, atoms, walls, gravity)
                 
 if __name__ == '__main__':
     width = 1000
@@ -290,7 +346,7 @@ if __name__ == '__main__':
     world = World(0, atoms, walls, gravity)
 
     simulator = Simulator(0.01, world, render)
-
+    #simulator.load_snapshot('snapshots/pocket_ball_demo/snapshot_00000700.txt')
     while True:
         t = simulator.clock()
         simulator.draw_background(white)
@@ -298,6 +354,7 @@ if __name__ == '__main__':
         simulator.draw_wall()
         simulator.atom_wall_collision()
         simulator.atom_atom_collision()
+        #simulator.atom_atom_fusion()
         simulator.main()
         simulator.draw_atom()
 
