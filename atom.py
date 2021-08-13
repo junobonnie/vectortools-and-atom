@@ -62,7 +62,7 @@ class Element:
         self.color = color
 
     def __str__(self):
-        return ('Element(name = ' + name + ', mass = ' + str(self.mass) +
+        return ('Element(name = ' + self.name + ', mass = ' + str(self.mass) +
                 ', radius = ' + str(self.radius) +
                 ', color = ' + str(self.color) + ')')
 
@@ -99,7 +99,7 @@ class Atom:
                         return True
             return False
 
-    def collision(self, other):
+    def collision(self, other, dt):
         if isinstance(other, Atom):
             if not self == other:
                 d = self.pos - other.pos
@@ -112,6 +112,8 @@ class Atom:
                 v2_ = v2.dot(d)*d/(d.dot(d))
 
                 if (d.dot(d) < (self.element.radius + other.element.radius)**2) and (d.dot(v1_-v2_) < 0):
+                    self.pos -= self.vel*dt
+                    other.pos -= other.vel*dt
                     v1__ = (m1-m2)/(m1+m2)*v1_ + 2*m2/(m1+m2)*v2_
                     v2__ = 2*m1/(m1+m2)*v1_ + (m2-m1)/(m1+m2)*v2_
                     self.vel = v1 - v1_ + v1__
@@ -124,6 +126,7 @@ class Atom:
                 if is_in_triangle(other.O, other.P[i-1], other.P[i], P):
                     OT = other.P[i-1] + other.P[i] - 2*other.O
                     if (OT.dot(V) < 0):
+                        self.pos -= self.vel*dt
                         self.vel = V - 2*OT.dot(V)*OT/OT.dot(OT)
 
     def fusion(self, other_Atom):
@@ -221,12 +224,12 @@ class Simulator:
     def atom_atom_collision(self):
         for atom in self.world.atoms:
             for other_atom in self.world.atoms:
-                atom.collision(other_atom)
+                atom.collision(other_atom, self.dt)
 
     def atom_wall_collision(self):
         for atom in self.world.atoms:
             for wall in self.world.walls:
-                atom.collision(wall)
+                atom.collision(wall, self.dt)
     
     def atom_atom_fusion(self):
         while True:
@@ -329,7 +332,7 @@ if __name__ == '__main__':
     wall4 = Wall(1000, 50, 0, Vector(-500, 350), blue)
     wall5 = Wall(100, 50, m.pi/4, Vector(-300, 0), blue)
 
-    e1 = Element(name = 'Heilum', mass = 1, radius = 10, color = red)
+    e1 = Element(name = 'Helium', mass = 1, radius = 10, color = red)
     atom1 = Atom(e1, Vector(-200, 0), Vector(50, 0))
     atom2 = Atom(e1, Vector(0, 0))
     atom3 = Atom(e1, Vector(25, -10))
@@ -341,7 +344,7 @@ if __name__ == '__main__':
     walls = [wall1, wall2, wall3, wall4, wall5]
     atoms = [atom1, atom2, atom3, atom4, atom5, atom6, atom7]
 
-    gravity = Vector(0, 0)
+    gravity = Vector(0, -10)*0
 
     world = World(0, atoms, walls, gravity)
 
