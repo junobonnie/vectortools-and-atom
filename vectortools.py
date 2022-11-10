@@ -14,6 +14,12 @@ class Tensor:
         self.yx = yx
         self.yy = yy
         
+    def __pos__(self):
+        return self
+
+    def __neg__(self):
+        return Tensor(-self.xx, -self.xy, -self.yx, -self.yy)
+        
     def __abs__(self):
         return self.xx*self.yy - self.xy*self.yx
     
@@ -92,6 +98,12 @@ class Vector:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+     
+    def __pos__(self):
+        return self
+
+    def __neg__(self):
+        return Vector(-self.x, -self.y)
         
     def __abs__(self):
         return m.sqrt(self.x**2 + self.y**2)
