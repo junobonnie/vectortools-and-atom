@@ -219,7 +219,9 @@ class Simulator:
 
     def draw_atom(self):
         for atom in self.world.atoms:
-            self.render.atom(atom)
+            if ((-self.render.width/2 < atom.pos.x < self.render.width/2) and 
+                    (-self.render.height/2 < atom.pos.y < self.render.height/2)):
+                self.render.atom(atom)
 
     def atom_atom_collision(self):
         for atom in self.world.atoms:
