@@ -190,12 +190,14 @@ class Render:
         self.circle(atom.pos, atom.element.radius, atom.element.color)
 
 class Simulator:
-    def __init__(self, dt, world, render):
+    def __init__(self, dt, world, render, grid_size = 100):
         self.dt = dt
         self.world = world
         self.render = render
         self.count_screen = 0
         self.count_snapshot = 0
+        self.grid_size = grid_size
+        self.grid = None
 
     def clock(self):
         self.world.t = self.world.t + self.dt
@@ -223,9 +225,35 @@ class Simulator:
                     (-self.render.height/2 < atom.pos.y < self.render.height/2)):
                 self.render.atom(atom)
 
-    def atom_atom_collision(self):
+    def make_grid(self):
+        nx = self.render.width//self.grid_size
+        ny = self.render.height//self.grid_size
+        grid = [[] for i in range(nx*ny)]
         for atom in self.world.atoms:
-            for other_atom in self.world.atoms:
+            i = int((self.render.width/2 + atom.pos.x)//self.grid_size)
+            j = int((self.render.height/2 + atom.pos.y)//self.grid_size)
+            if (0 <= i < nx) and (0 <= j < ny):
+                grid[i+nx*j].append(atom)
+        self.grid = grid
+    
+    def get_near_atoms(self, atom):
+        nx = self.render.width//self.grid_size
+        ny = self.render.height//self.grid_size
+        i = int((self.render.width/2 + atom.pos.x)//self.grid_size)
+        j = int((self.render.height/2 + atom.pos.y)//self.grid_size)
+        atoms = []
+        for i_ in (i-1, i, i+1):
+            for j_ in (j-1, j, j+1):
+                if (0 <= i_ < nx) and (0 <= j_ < ny):
+                    atoms += self.grid[i_+nx*j_]
+        return atoms
+
+    def atom_atom_collision(self):
+        self.make_grid()
+        for atom in self.world.atoms:
+            atoms = self.get_near_atoms(atom)
+            for other_atom in atoms:
+                #self.render.polygon([atom.pos, other_atom.pos], red)
                 atom.collision(other_atom, self.dt)
 
     def atom_wall_collision(self):
@@ -284,13 +312,13 @@ class Simulator:
                     count += 1
                     atoms_info = atoms_info + 'atom' + str(count) + '{ element{ name:' + atom.element.name + ', mass:' + str(atom.element.mass) + ', radius:' + str(atom.element.radius) + ', color:' + str(atom.element.color) + ' }' + ', pos:' + str(atom.pos) + ', vel:' + str(atom.vel) + ' }, '
                     
-                f.write('world{ t:' + str(world.t) + ', gravity:' + str(world.gravity) + ', walls{ ' + walls_info + ' }' + ', atoms{ ' + atoms_info + ' }' + ' }')
+                f.write('world{ t:' + str(self.world.t) + ', gravity:' + str(self.world.gravity) + ', walls{ ' + walls_info + ' }' + ', atoms{ ' + atoms_info + ' }' + ' }')
         self.count_snapshot += 1
         
     def load_snapshot(self, snapshot_file):
         with open(snapshot_file, "r") as f:
             snapshot = f.read()
-            snapshot = snapshot.replace('world{ t:', '').replace(', gravity:', '#').replace(', walls', '#').replace(',  }, atoms', '#').replace(' },  } }', '') 
+            snapshot = snapshot.replace('world{ t:', '').replace(', gravity:', '#').replace(', walls', '#').replace('}, atoms', '#').replace(' },  } }', '') 
             snapshot = snapshot.split('#')
             t = float(snapshot[0])
             gravity = eval(snapshot[1])
@@ -300,7 +328,10 @@ class Simulator:
             for wall in walls_raw:
                 wall = wall.replace('width:', '#').replace(', height:', '#').replace(', theta:', '#').replace(', pos:', '#').replace(', color:', '#').replace(' }, ', '').replace(' }', '')
                 wall = wall.split('#')
-                walls.append(Wall(float(wall[1]), float(wall[2]), float(wall[3]), eval(wall[4]), eval(wall[5])))
+                try:
+                    walls.append(Wall(float(wall[1]), float(wall[2]), float(wall[3]), eval(wall[4]), eval(wall[5])))
+                except:
+                    pass
                 
             atoms_raw = snapshot[3]
             atoms_raw = atoms_raw.replace('{ atom', '').split('atom')
@@ -311,7 +342,10 @@ class Simulator:
                 element_raw = atom[1]
                 element_raw = element_raw.replace('name:', '#').replace(', mass:', '#').replace(', radius:', '#').replace(', color:', '#')
                 element_raw = element_raw.split('#')
-                atoms.append(Atom(Element(element_raw[1], float(element_raw[2]), float(element_raw[3]), eval(element_raw[4])), eval(atom[2]), eval(atom[3])))
+                try:
+                    atoms.append(Atom(Element(element_raw[1], float(element_raw[2]), float(element_raw[3]), eval(element_raw[4])), eval(atom[2]), eval(atom[3])))
+                except:
+                    pass
         self.world = World(t, atoms, walls, gravity)
                 
 if __name__ == '__main__':
@@ -342,7 +376,7 @@ if __name__ == '__main__':
     atom5 = Atom(e1, Vector(50, -20))
     atom6 = Atom(e1, Vector(50, 0))
     atom7 = Atom(e1, Vector(50, 20))
-
+    
     walls = [wall1, wall2, wall3, wall4, wall5]
     atoms = [atom1, atom2, atom3, atom4, atom5, atom6, atom7]
 
@@ -351,7 +385,7 @@ if __name__ == '__main__':
     world = World(0, atoms, walls, gravity)
 
     simulator = Simulator(0.01, world, render)
-    #simulator.load_snapshot('snapshots/pocket_ball_demo/snapshot_00000700.txt')
+    simulator.load_snapshot('snapshots/pocket_ball_demo/snapshot_00000300.txt')
     while True:
         t = simulator.clock()
         simulator.draw_background(white)
