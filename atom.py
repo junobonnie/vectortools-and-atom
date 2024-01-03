@@ -226,8 +226,8 @@ class Simulator:
                 self.render.atom(atom)
 
     def make_grid(self):
-        nx = self.render.width//self.grid_size
-        ny = self.render.height//self.grid_size
+        nx = int(self.render.width//self.grid_size)
+        ny = int(self.render.height//self.grid_size)
         grid = [[] for i in range(nx*ny)]
         for atom in self.world.atoms:
             i = int((self.render.width/2 + atom.pos.x)//self.grid_size)
@@ -237,8 +237,8 @@ class Simulator:
         self.grid = grid
     
     def get_near_atoms(self, atom):
-        nx = self.render.width//self.grid_size
-        ny = self.render.height//self.grid_size
+        nx = int(self.render.width//self.grid_size)
+        ny = int(self.render.height//self.grid_size)
         i = int((self.render.width/2 + atom.pos.x)//self.grid_size)
         j = int((self.render.height/2 + atom.pos.y)//self.grid_size)
         atoms = []
