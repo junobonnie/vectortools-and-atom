@@ -11,7 +11,40 @@ pocket ball demo(모바일 재생 불가):
 https://user-images.githubusercontent.com/60418809/116839608-f468e700-ac0d-11eb-80c4-e7991d4e7e36.mp4
 
 
-+++
+
+## Examples
+
+KPZ Universality of Active Brownian Particles <br>
+https://github.com/junobonnie/ABP-KPZ
+
+Simulation of KPZ-like Deposition <br>
+https://github.com/junobonnie/KPZ-Simulation
+
+Active Brownian Particle <br>
+https://github.com/junobonnie/Active-Brownian-particle
+
+Dilute Gas <br>
+https://github.com/junobonnie/dilute-gas
+
+Darkmatter Simulation Tools for Poor Physicist <br>
+https://github.com/junobonnie/DSTPP
+
+Barnes-Hut & SPH <br>
+https://github.com/junobonnie/Barnes-Hut_SPH
+
+Barnes–Hut tree gravitational N-body simulation <br>
+https://github.com/junobonnie/Barnes-Hut
+
+Smoothed-Particle Hydrodynamics(SPH) <br>
+https://github.com/junobonnie/smoothed-particle-hydrodynamics
+
+Softbody Simulation using Mass-Spring model <br>
+https://github.com/junobonnie/softbody-simulator
+
+Direct gravitational N-body simulation <br>
+https://github.com/junobonnie/gravity-simulator
+
+### +++
 
 벡터 연산부를 numpy로 다 처리하면 더 빠를 줄 알았는데,
 
