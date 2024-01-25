@@ -17,9 +17,6 @@ https://user-images.githubusercontent.com/60418809/116839608-f468e700-ac0d-11eb-
 KPZ Universality of Active Brownian Particles <br>
 https://github.com/junobonnie/ABP-KPZ
 
-Simulation of KPZ-like Deposition <br>
-https://github.com/junobonnie/KPZ-Simulation
-
 Active Brownian Particle <br>
 https://github.com/junobonnie/Active-Brownian-particle
 
