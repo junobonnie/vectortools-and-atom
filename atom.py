@@ -207,8 +207,8 @@ class Simulator:
         self.render.screen.fill(color)
 
     def draw_grid(self, unit_size):
+        grey = (200, 200, 200)
         for x in range(0, int(self.render.width/2), unit_size):
-            grey = (200, 200, 200)
             pg.draw.line(self.render.screen, grey, (x + self.render.width/2, 0), (x + self.render.width/2, self.render.height))
             pg.draw.line(self.render.screen, grey, (-x + self.render.width/2, 0), (-x + self.render.width/2, self.render.height))
         for y in range(0, int(self.render.height/2), unit_size):
