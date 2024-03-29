@@ -443,6 +443,9 @@ if __name__ == '__main__':
 
     simulator = Simulator(0.01, world, render)
     simulator.load_snapshot('snapshots/pocket_ball_demo/snapshot_00000300.hdf5')
+
+    atom1 = simulator.world.atoms[0]
+    atom7 = simulator.world.atoms[6]
     while True:
         t = simulator.clock()
         simulator.draw_background(white)
