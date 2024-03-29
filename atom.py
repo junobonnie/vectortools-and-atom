@@ -156,7 +156,8 @@ class World:
 
 class Render:
     def __init__(self, screen, width, height):
-        pg.init()
+        if not screen == None:
+            pg.init()
         self.screen = screen
         self.width = width
         self.height = height
