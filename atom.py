@@ -324,29 +324,49 @@ class Simulator:
             world = f.create_group('world')
             world.attrs['t'] = self.world.t
             world.attrs['gravity'] = self.world.gravity.list()
-            
-            walls = world.create_group('walls')
-            count = 0
-            for wall in self.world.walls:
-                count += 1
-                wall_ = walls.create_group('wall'+str(count))
-                wall_.attrs['width'] = wall.width
-                wall_.attrs['height'] = wall.height
-                wall_.attrs['theta'] = wall.theta
-                wall_.attrs['pos'] = wall.pos.list()
-                wall_.attrs['color'] = wall.color
-
             atoms = world.create_group('atoms')
+            N = len(self.world.atoms)
+            element = [0]*N
+            mass = [0]*N
+            radius = [0]*N
+            color = [0]*N
+            pos = [0]*N
+            vel = [0]*N
             count = 0
             for atom in self.world.atoms:
+                element[count] = atom.element.name
+                mass[count] = atom.element.mass
+                radius[count] = atom.element.radius
+                color[count] = atom.element.color
+                pos[count] = atom.pos.list()
+                vel[count] = atom.vel.list()
                 count += 1
-                atom_ = atoms.create_group('atom'+str(count))
-                atom_.attrs['element'] = atom.element.name
-                atom_.attrs['mass'] = atom.element.mass
-                atom_.attrs['radius'] = atom.element.radius
-                atom_.attrs['color'] = atom.element.color
-                atom_.attrs['pos'] = atom.pos.list()
-                atom_.attrs['vel'] = atom.vel.list()
+            atoms.create_dataset('element', data = element)
+            atoms.create_dataset('mass', data = mass)
+            atoms.create_dataset('radius', data = radius)
+            atoms.create_dataset('color', data = color)
+            atoms.create_dataset('pos', data = pos)
+            atoms.create_dataset('vel', data = vel)
+            walls = world.create_group('walls')
+            N = len(self.world.walls)
+            width = [0]*N
+            height = [0]*N
+            theta = [0]*N
+            pos = [0]*N
+            color = [0]*N
+            count = 0
+            for wall in self.world.walls:
+                width[count] = wall.width
+                height[count] = wall.height
+                theta[count] = wall.theta
+                pos[count] = wall.pos.list()
+                color[count] = wall.color
+                count += 1
+            walls.create_dataset('width', data = width)
+            walls.create_dataset('height', data = height)
+            walls.create_dataset('theta', data = theta)
+            walls.create_dataset('pos', data = pos)
+            walls.create_dataset('color', data = color)
             f.close()
         self.count_snapshot += 1
 
@@ -358,17 +378,15 @@ class Simulator:
         world = f['world']
         t = world.attrs['t']
         gravity = self.list_to_vector(world.attrs['gravity'])
-        walls = []
-        for wall_ in world['walls']:
-            wall = world['walls'][wall_]
-            walls.append(Wall(wall.attrs['width'], wall.attrs['height'], wall.attrs['theta'], self.list_to_vector(wall.attrs['pos']), wall.attrs['color']))
         atoms = []
-        for atom_ in world['atoms']:
-            atom = world['atoms'][atom_]
-            element = Element(atom.attrs['element'], atom.attrs['mass'], atom.attrs['radius'], atom.attrs['color'])
-            pos = self.list_to_vector(atom.attrs['pos'])
-            vel = self.list_to_vector(atom.attrs['vel'])
+        for i in range(len(world['atoms']['element'])):
+            element = Element(world['atoms']['element'][i], world['atoms']['mass'][i], world['atoms']['radius'][i], world['atoms']['color'][i])
+            pos = self.list_to_vector(world['atoms']['pos'][i])
+            vel = self.list_to_vector(world['atoms']['vel'][i])
             atoms.append(Atom(element, pos, vel))
+        walls = []
+        for i in range(len(world['walls']['width'])):
+            walls.append(Wall(world['walls']['width'][i], world['walls']['height'][i], world['walls']['theta'][i], self.list_to_vector(world['walls']['pos'][i]), world['walls']['color'][i]))
         self.world = World(t, atoms, walls, gravity)
         f.close()
         
