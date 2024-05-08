@@ -378,15 +378,17 @@ class Simulator:
         world = f['world']
         t = world.attrs['t']
         gravity = self.list_to_vector(world.attrs['gravity'])
-        atoms = []
-        for i in range(len(world['atoms']['element'])):
+        N = len(world['atoms']['element'])
+        atoms = [0]*N
+        for i in range(N):
             element = Element(world['atoms']['element'][i], world['atoms']['mass'][i], world['atoms']['radius'][i], pg.Color(world['atoms']['color'][i]))
             pos = self.list_to_vector(world['atoms']['pos'][i])
             vel = self.list_to_vector(world['atoms']['vel'][i])
-            atoms.append(Atom(element, pos, vel))
-        walls = []
-        for i in range(len(world['walls']['width'])):
-            walls.append(Wall(world['walls']['width'][i], world['walls']['height'][i], world['walls']['theta'][i], self.list_to_vector(world['walls']['pos'][i]), pg.Color(world['walls']['color'][i])))
+            atoms[i] = Atom(element, pos, vel)
+        N = len(world['walls']['width'])
+        walls = [0]*N
+        for i in range(N):
+            walls[i] = Wall(world['walls']['width'][i], world['walls']['height'][i], world['walls']['theta'][i], self.list_to_vector(world['walls']['pos'][i]), pg.Color(world['walls']['color'][i]))
         self.world = World(t, atoms, walls, gravity)
         f.close()
         
