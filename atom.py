@@ -337,7 +337,7 @@ class Simulator:
                 element[count] = atom.element.name
                 mass[count] = atom.element.mass
                 radius[count] = atom.element.radius
-                color[count] = atom.element.color
+                color[count] = (atom.element.color.r, atom.element.color.g, atom.element.color.b, atom.element.color.a)
                 pos[count] = atom.pos.list()
                 vel[count] = atom.vel.list()
                 count += 1
@@ -360,7 +360,7 @@ class Simulator:
                 height[count] = wall.height
                 theta[count] = wall.theta
                 pos[count] = wall.pos.list()
-                color[count] = wall.color
+                color[count] = (wall.color.r, wall.color.g, wall.color.b, wall.color.a)
                 count += 1
             walls.create_dataset('width', data = width)
             walls.create_dataset('height', data = height)
