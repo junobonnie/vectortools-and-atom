@@ -375,9 +375,9 @@ class Simulator:
 
     def load_snapshot(self, snapshot_file):
         with h5py.File(snapshot_file, 'r') as f:
-            self.count_snapshot = f.attrs['count_snapshot']
+            self.count_snapshot = int(f.attrs['count_snapshot'])
             world = f['world']
-            t = world.attrs['t']
+            t = float(world.attrs['t'])
             gravity = self.list_to_vector(world.attrs['gravity'])
             element_ = world['atoms']['element']
             mass_ = world['atoms']['mass']
