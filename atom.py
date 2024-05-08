@@ -380,7 +380,7 @@ class Simulator:
         gravity = self.list_to_vector(world.attrs['gravity'])
         atoms = []
         for i in range(len(world['atoms']['element'])):
-            element = Element(world['atoms']['element'][i], world['atoms']['mass'][i], world['atoms']['radius'][i], world['atoms']['color'][i])
+            element = Element(world['atoms']['element'][i], world['atoms']['mass'][i], world['atoms']['radius'][i], pg.Color(tuple(world['atoms']['color'][i])))
             pos = self.list_to_vector(world['atoms']['pos'][i])
             vel = self.list_to_vector(world['atoms']['vel'][i])
             atoms.append(Atom(element, pos, vel))
